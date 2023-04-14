@@ -17,20 +17,26 @@ public class TelaCursos extends javax.swing.JFrame {
     ResultSet rs = null;
     
     public void adicionar(){
-        String sql = "insert into tb_area_tecnologica(nome_area) values(?)";
+        String sql = "insert into tb_cursos(nome_curso, id_area) values(?,?)";
         
         try {
             pst = conexao.prepareStatement(sql);
-            pst.setString(1, txtNome.getText());
+            pst.setString(1, txtNomeCurso.getText());
+            pst.setString(2, txtIDArea.getText());
             
-            if (txtNome.getText().isEmpty()) {
+            if (txtNomeCurso.getText().isEmpty() || (txtIDArea.getText().isEmpty())) {
                 JOptionPane.showMessageDialog(null, "Campo de preenchimento obrigatorio não foi preenchido");
+                
             } else {
                 int adicionado = pst.executeUpdate();
-                System.out.println(adicionado);
+                
                 if (adicionado > 0){
-                    JOptionPane.showMessageDialog(null,"Área Tecnológica cadastrada com sucesso !");
-                    txtNome.setText(null);
+                    JOptionPane.showMessageDialog(null,"Curso cadastrado com sucesso !");
+                    txtNomeCurso.setText(null);
+                    txtIDArea.setText(null);
+                    btnEditArea.setEnabled(false);
+                    btnExcluirArea.setEnabled(false);
+                    
                     
                 }
             }
@@ -42,13 +48,13 @@ public class TelaCursos extends javax.swing.JFrame {
     
     //Criando método de consulta Areas Tecnologicas no banco de dados.
          private void consultar() {
-        String sql = "select id_area as Id, nome_area as Área from tb_area_tecnologica where nome_area like ?";
+        String sql = "select id_curso as Id, nome_curso as Curso, id_area as 'ID Área Tec.' from tb_cursos where nome_curso like ?";
 
         try {
             pst = conexao.prepareStatement(sql);
             pst.setString(1, txtConsultaArea.getText() + "%");
             rs = pst.executeQuery();
-            tblAreaConsulta.setModel(DbUtils.resultSetToTableModel(rs));
+            tblCursoConsulta.setModel(DbUtils.resultSetToTableModel(rs));
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
@@ -56,13 +62,15 @@ public class TelaCursos extends javax.swing.JFrame {
     }
     
     public void setar_campos(){
-        int setar = tblAreaConsulta.getSelectedRow();
-        txtID.setText(tblAreaConsulta.getModel().getValueAt(setar, 0).toString());
-        txtNome.setText(tblAreaConsulta.getModel().getValueAt(setar, 1).toString());
-        btnAddArea.setEnabled(false);
-        btnEditArea.setEnabled(true);
-        btnExcluirArea.setEnabled(true);
-       
+        int setar = tblCursoConsulta.getSelectedRow();
+        txtIDCurso.setText(tblCursoConsulta.getModel().getValueAt(setar, 0).toString());
+        txtNomeCurso.setText(tblCursoConsulta.getModel().getValueAt(setar, 1).toString());
+        txtIDCurso.setText(tblCursoConsulta.getModel().getValueAt(setar, 2).toString());
+        //txtArea.setText(tblAreaConsulta.getModel().getValueAt(setar, 1).toString());
+       // btnAddArea.setEnabled(true);
+       // btnEditArea.setEnabled(false);
+       // btnExcluirArea.setEnabled(false);
+           
     }
     
     public void alterar(){
@@ -70,11 +78,11 @@ public class TelaCursos extends javax.swing.JFrame {
         
         try {
             pst = conexao.prepareStatement(sql);
-            pst.setString(1, txtNome.getText());
-            pst.setString(2, txtID.getText());
+            pst.setString(1, txtNomeCurso.getText());
+            pst.setString(2, txtIDCurso.getText());
             
             //Validação obrigatoria
-            if ((txtID.getText().isEmpty()) || (txtNome.getText().isEmpty())){
+            if ((txtIDCurso.getText().isEmpty()) || (txtNomeCurso.getText().isEmpty())){
                JOptionPane.showMessageDialog(null,"Campos de preenchimentos obrigatorios não preenchidos !");
                 
             } else {
@@ -84,8 +92,8 @@ public class TelaCursos extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "Área Tecnologica alterada com sucesso !");
                     btnAddArea.setEnabled(true);
                     btnEditArea.setEnabled(false);
-                    txtID.setText(null);
-                    txtNome.setText(null);
+                    txtIDCurso.setText(null);
+                    txtNomeCurso.setText(null);
                 }
             }
                 
@@ -105,13 +113,13 @@ public class TelaCursos extends javax.swing.JFrame {
             
             try {
                 pst = conexao.prepareStatement(sql);
-                pst.setString(1, txtID.getText());
+                pst.setString(1, txtIDCurso.getText());
                 int apagado = pst.executeUpdate();
                 
                 if (apagado > 0) {
                     JOptionPane.showMessageDialog(null, "Área Tecnologica escluida com sucesso !");
-                    txtID.setText(null);
-                    txtNome.setText(null);
+                    txtIDCurso.setText(null);
+                    txtNomeCurso.setText(null);
                     btnAddArea.setEnabled(true);
                     btnEditArea.setEnabled(false);
                     btnExcluirArea.setEnabled(false);
@@ -133,7 +141,10 @@ public class TelaCursos extends javax.swing.JFrame {
         initComponents();
         getContentPane().setBackground(Color.DARK_GRAY);
         conexao = ModuloConexao.conector();
-        tblAreaConsulta.setVisible(false);
+        tblCursoConsulta.setVisible(false);
+        btnEditArea.setEnabled(false);
+        btnExcluirArea.setEnabled(false);
+        
     }
 
   
@@ -144,17 +155,20 @@ public class TelaCursos extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         lblID = new javax.swing.JLabel();
         lblNome = new javax.swing.JLabel();
-        txtID = new javax.swing.JTextField();
-        txtNome = new javax.swing.JTextField();
+        txtIDCurso = new javax.swing.JTextField();
+        txtNomeCurso = new javax.swing.JTextField();
         btnAddArea = new javax.swing.JButton();
         btnEditArea = new javax.swing.JButton();
-        btnSearchArea = new javax.swing.JButton();
+        btnSair = new javax.swing.JButton();
         btnExcluirArea = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblAreaConsulta = new javax.swing.JTable();
+        tblCursoConsulta = new javax.swing.JTable();
         txtConsultaArea = new javax.swing.JTextField();
         lblConsultaArea = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        txtIDArea = new javax.swing.JTextField();
+        lblIDArea = new javax.swing.JLabel();
+        cboArea = new javax.swing.JComboBox<>();
 
         jLabel1.setText("jLabel1");
 
@@ -167,15 +181,15 @@ public class TelaCursos extends javax.swing.JFrame {
         });
 
         lblID.setForeground(new java.awt.Color(255, 255, 153));
-        lblID.setText("ID :");
+        lblID.setText("ID Curso");
 
         lblNome.setForeground(new java.awt.Color(255, 255, 153));
-        lblNome.setText("Nome :");
+        lblNome.setText("Curso");
 
-        txtID.setBackground(new java.awt.Color(204, 204, 204));
-        txtID.setEnabled(false);
+        txtIDCurso.setBackground(new java.awt.Color(204, 204, 204));
+        txtIDCurso.setEnabled(false);
 
-        txtNome.setBackground(new java.awt.Color(204, 204, 204));
+        txtNomeCurso.setBackground(new java.awt.Color(204, 204, 204));
 
         btnAddArea.setBackground(new java.awt.Color(255, 204, 102));
         btnAddArea.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/equivalencia/imagens/add.png"))); // NOI18N
@@ -193,8 +207,8 @@ public class TelaCursos extends javax.swing.JFrame {
             }
         });
 
-        btnSearchArea.setBackground(new java.awt.Color(255, 204, 102));
-        btnSearchArea.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/equivalencia/imagens/search.png"))); // NOI18N
+        btnSair.setBackground(new java.awt.Color(255, 204, 102));
+        btnSair.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/equivalencia/imagens/search.png"))); // NOI18N
 
         btnExcluirArea.setBackground(new java.awt.Color(255, 102, 102));
         btnExcluirArea.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/equivalencia/imagens/delete.png"))); // NOI18N
@@ -204,27 +218,27 @@ public class TelaCursos extends javax.swing.JFrame {
             }
         });
 
-        tblAreaConsulta.setModel(new javax.swing.table.DefaultTableModel(
+        tblCursoConsulta.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "ID_Área", "Nome_Área"
+                "ID Área", "Nome Área", "ID Área Tecnologica"
             }
         ));
-        tblAreaConsulta.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblCursoConsulta.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblAreaConsultaMouseClicked(evt);
+                tblCursoConsultaMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tblAreaConsulta);
+        jScrollPane1.setViewportView(tblCursoConsulta);
 
         txtConsultaArea.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -239,33 +253,49 @@ public class TelaCursos extends javax.swing.JFrame {
 
         lblConsultaArea.setText("Pesquisar");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jLabel2.setText("Area");
+
+        txtIDArea.setEnabled(false);
+
+        lblIDArea.setText("ID Area");
+
+        cboArea.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(21, Short.MAX_VALUE)
+                .addContainerGap(23, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblID, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lblNome, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(lblNome, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txtIDCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtIDArea, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtNomeCurso, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                            .addComponent(cboArea, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(lblID)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblIDArea)
+                                .addGap(44, 44, 44)))
+                        .addGap(18, 18, 18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnAddArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnSearchArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(btnExcluirArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnEditArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnEditArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSair, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnExcluirArea, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -277,30 +307,38 @@ public class TelaCursos extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(25, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtConsultaArea, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblConsultaArea, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblID))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtConsultaArea, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblConsultaArea, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblIDArea, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblID, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblNome))
-                        .addGap(18, 18, 18)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtIDCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtIDArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblNome)
+                            .addComponent(txtNomeCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(cboArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnEditArea, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnExcluirArea, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnAddArea, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnSearchArea, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(122, 122, 122))))
+                            .addComponent(btnEditArea, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSair, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(132, 132, 132))))
         );
 
         pack();
@@ -324,13 +362,13 @@ public class TelaCursos extends javax.swing.JFrame {
         consultar();
     }//GEN-LAST:event_txtConsultaAreaKeyReleased
 
-    private void tblAreaConsultaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAreaConsultaMouseClicked
+    private void tblCursoConsultaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCursoConsultaMouseClicked
         setar_campos();
          
-    }//GEN-LAST:event_tblAreaConsultaMouseClicked
+    }//GEN-LAST:event_tblCursoConsultaMouseClicked
 
     private void txtConsultaAreaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtConsultaAreaMouseClicked
-        tblAreaConsulta.setVisible(true);
+        tblCursoConsulta.setVisible(true);
         consultar();
     }//GEN-LAST:event_txtConsultaAreaMouseClicked
 
@@ -382,16 +420,19 @@ public class TelaCursos extends javax.swing.JFrame {
     private javax.swing.JButton btnAddArea;
     private javax.swing.JButton btnEditArea;
     private javax.swing.JButton btnExcluirArea;
-    private javax.swing.JButton btnSearchArea;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JButton btnSair;
+    private javax.swing.JComboBox<String> cboArea;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblConsultaArea;
     private javax.swing.JLabel lblID;
+    private javax.swing.JLabel lblIDArea;
     private javax.swing.JLabel lblNome;
-    private javax.swing.JTable tblAreaConsulta;
+    private javax.swing.JTable tblCursoConsulta;
     private javax.swing.JTextField txtConsultaArea;
-    private javax.swing.JTextField txtID;
-    private javax.swing.JTextField txtNome;
+    private javax.swing.JTextField txtIDArea;
+    private javax.swing.JTextField txtIDCurso;
+    private javax.swing.JTextField txtNomeCurso;
     // End of variables declaration//GEN-END:variables
 }
